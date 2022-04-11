@@ -4,7 +4,7 @@ import csv
 from bs4 import BeautifulSoup
 #Access the url of the site
 url = "http://books.toscrape.com/"
-#page = requests.get(url)
+
 #Dire à bs4 de parser le contenu de la page
 main_page = requests.get(url)   
 soup = BeautifulSoup(main_page.content, 'html.parser')
