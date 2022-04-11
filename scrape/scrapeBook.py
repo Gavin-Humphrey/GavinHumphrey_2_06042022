@@ -16,7 +16,6 @@ list_ul = list_first_ul.find('ul')
 links_books_category = list_ul.find_all('li')
 for li in links_books_category:
     link_category_name = li.find('a')['href'].split('/')[3]
-    category = AllCategory(link_category_name)
-    self.list_of_categories.append(category)
+    print(link_category_name)
 
 
