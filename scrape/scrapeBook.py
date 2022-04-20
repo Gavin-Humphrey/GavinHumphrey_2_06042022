@@ -1,21 +1,24 @@
-#Import requests and csv
+import re
 import requests
 import csv
 from bs4 import BeautifulSoup
-#Access the url of the site
-url = "http://books.toscrape.com/"
 
-#Dire à bs4 de parser le contenu de la page
-main_page = requests.get(url)   
+url = "http://books.toscrape.com/"
+main_page = requests.get(url)
 soup = BeautifulSoup(main_page.content, 'html.parser')
-# Récupérer l'ul dans la barre de navigation
-list_first_ul = soup.find('ul', {"class": "nav-list"})
-# Extraire l'ul qui contient la liste
-list_ul = list_first_ul.find('ul')
-# Avec cet élément de liste "li", nous obtenons tous les liens vers les catégories
-links_books_category = list_ul.find_all('li')
-for li in links_books_category:
-    link_category_name = li.find('a')['href'].split('/')[3]
-    print(link_category_name)
+
+# Récupérer l'url de tous les liens de catégories, les mettre dans une liste "catégories".
+def get_categories_urls(url):
+  
+    category_ul = soup.find("div", {"class": "side_categories"}).ul.ul
+    category_links = category_ul.find_all("a")
+
+    categories = []
+
+    for link in category_links:
+        categories.append(f'{main_page}{link["href"]}')
+    return categories
+
+print(get_categories_urls("http://books.toscrape.com/"))
 
 
