@@ -2,6 +2,7 @@ from urllib import response
 import requests
 import csv
 from bs4 import BeautifulSoup 
+# from csv import DictWriter
 
 url = 'http://books.toscrape.com'
 # A l'aide de requests, on télécharger l'url/le site dans un variable, main_page. 
@@ -40,9 +41,8 @@ for books_urls in links_to_books:
     price_excluding_tax = parsed_result.select('td')[2].text.strip()
     number_available = parsed_result.find('p', {'class': 'instock availability'}).text.strip()
     product_description = parsed_result.select('article > p')[0].text.strip()
-
     # Itérer toutes ul de class=breadcrumb pour trouver les category qui se trouve dans li class=active
-    category_ul = soup.select('ul.breadcrumb')
+    category_ul = soup.select('ul.breadcrumb') 
     for element in category_ul:
         category = parsed_result.select('li')[2].text.strip()
     review_rating = parsed_result.find('p', class_='star-rating').get('class')[1] + ' stars'
@@ -65,14 +65,19 @@ for books_urls in links_to_books:
     books_data.append(books_data_dict)         
 # print(books_data)
 
-filename = 'scrapefile.csv'
-with open(filename, 'w', newline='') as csvfile:
-    myheaders = ['Link', 'UPC', 'Title', 'Price_including_tax', 'Price_excluding_tax', 
-    'Number_available', 'Product_description', 'Category', 'Review_rating', 'Image_url']
+# Rédaction et stockage du dictionnaire de données dans un fichier csv avec DictWriter
+header = books_data[0] .keys()
+with open(f"scrapefile.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
+    writer.writeheader()
+    writer.writerows(books_data)
+
+
+
+
+
+ 
+
+        
    
-    writer = csv.writer(csvfile, delimiter=',')
-    writer = csv.writer(filename)
-    writer.writerow(myheaders)
-    for i in range(len(books_data)):
-        row = books_data[i]
-        writer.writerow(row)
+    
