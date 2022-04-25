@@ -1,4 +1,3 @@
-#from this import s
 from urllib import response
 import requests
 import csv
@@ -72,9 +71,8 @@ with open(filename, 'w', newline='') as csvfile:
     'Number_available', 'Product_description', 'Category', 'Review_rating', 'Image_url']
    
     writer = csv.writer(csvfile, delimiter=',')
-    #writer = csv.writer(filename)
+    writer = csv.writer(filename)
     writer.writerow(myheaders)
-    # writer.writerows(books_data)
-    for i in range(len(books_data[i])):
+    for i in range(len(books_data)):
         row = books_data[i]
         writer.writerow(row)
