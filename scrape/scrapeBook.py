@@ -46,7 +46,8 @@ for books_urls in links_to_books:
     for element in category_ul:
         category = parsed_result.select('li')[2].text.strip()
     review_rating = parsed_result.find('p', class_='star-rating').get('class')[1] + ' stars'
-    image_url = parsed_result.select('img')[0]
+    image_url = parsed_result.select('img')[0].get('src').strip('../../')
+    
 
      
    # Stocker les données du chaque livre dans un dict.
