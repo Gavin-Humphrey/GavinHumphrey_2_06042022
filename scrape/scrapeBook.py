@@ -5,7 +5,7 @@ import csv
 from bs4 import BeautifulSoup 
 
 url = 'http://books.toscrape.com'
-# Download the page
+# A l'aide de requests, on télécharger l'url/le site dans un variable, main_page. 
 main_page = requests.get(url)
 # Parse using beautifulsoup
 parsing = BeautifulSoup(main_page.content, 'html.parser')
@@ -16,7 +16,7 @@ books_urls = parsing.find_all('h3')
 # La liste du toutes les livres
 links_to_books = []
 
-# Iterer les range de toutes les catetories 2émè item à 51émè et recupérer des livres page après page
+# Iterer les range de toutes les catetories 2émè item à 51émè (les 50 categories) et recupérer des livres page après page
 for i in range(1,51):
     page = f'http://books.toscrape.com/catalogue/page-{i}.html'
     response = requests.get(page)
@@ -37,12 +37,15 @@ for books_urls in links_to_books:
 
     UPC = parsed_result.find('td').text.strip() 
     title = parsed_result.h1.text.strip()
-    # price_including_tax = parsed_result.find('table', {'class': 'table table-striped'}).find('td')[2]
-    # price_excluding_tax = parsed_result.find('table', {'class': 'table table-striped'}).find('td')[1] 
+    price_including_tax = parsed_result.select('td')[3].text.strip()
+    price_excluding_tax = parsed_result.select('td')[2].text.strip()
     number_available = parsed_result.find('p', {'class': 'instock availability'}).text.strip()
-    # product_description = parsed_result.find('p', {'class': 'product_page'}).text.strip()
     product_description = parsed_result.select('article > p')[0].text.strip()
-    # category = parsed_result.find('ul', {'class': 'nav-list'}).a.a.text.strip()
+
+    # Itérer toutes ul de class=breadcrumb pour trouver les category qui se trouve dans li class=active
+    category_ul = soup.select('ul.breadcrumb')
+    for element in category_ul:
+        category = parsed_result.select('li')[2].text.strip()
     review_rating = parsed_result.find('p', class_='star-rating').get('class')[1] + ' stars'
     image_url = parsed_result.select('img')[0]
 
@@ -52,17 +55,26 @@ for books_urls in links_to_books:
         'Link' : books_urls,
         'UPC' : UPC,
         'Title' : title,
-       #  'Price_including_tax' : price_including_tax,
-       # 'Price_excluding_tax' : price_excluding_tax,
+        'Price_including_tax' : price_including_tax,
+        'Price_excluding_tax' : price_excluding_tax,
         'Number_available' : number_available,
         'Product_description' : product_description,
-        # 'Category' : category,
+        'Category' : category,
         'Review_rating' : review_rating,
         'Image_url' : image_url       
     }
     books_data.append(books_data_dict)         
-print(books_data)
+# print(books_data)
 
-
-
-
+filename = 'scrapefile.csv'
+with open(filename, 'w', newline='') as csvfile:
+    myheaders = ['Link', 'UPC', 'Title', 'Price_including_tax', 'Price_excluding_tax', 
+    'Number_available', 'Product_description', 'Category', 'Review_rating', 'Image_url']
+   
+    writer = csv.writer(csvfile, delimiter=',')
+    #writer = csv.writer(filename)
+    writer.writerow(myheaders)
+    # writer.writerows(books_data)
+    for i in range(len(books_data[i])):
+        row = books_data[i]
+        writer.writerow(row)
