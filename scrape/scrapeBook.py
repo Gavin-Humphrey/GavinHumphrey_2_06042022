@@ -1,7 +1,5 @@
 from urllib.request import urlopen
-
 from urllib import response
-
 import requests
 import csv
 import os
@@ -84,6 +82,7 @@ def get_books_data(books_links):
             BASE_URL + "/" + parsed_result.select("img")[0].get("src").strip("../../")
         )
         book_img = parsed_result.select("img")[0]
+        image_name = parsed_result.select("img")[0].get("alt")
         # print(image_alt)
         # Stocker les données du chaque livre dans un dict.
         books_data_dict = {
@@ -98,6 +97,7 @@ def get_books_data(books_links):
             "Review_rating": review_rating,
             "Image_url": image_url,
             "file_image": "data/image/" + slugify(title) + ".jpg",
+            "Image_name": slugify(image_name)
         }
         books_data.append(books_data_dict)
 
@@ -105,11 +105,10 @@ def get_books_data(books_links):
 
     return books_data
 
-
 def main():
     """Main function"""
 
-    books_links = get_books_links(page_number=5)
+    books_links = get_books_links(page_number=50)
 
     books_data = get_books_data(books_links)
 
@@ -121,12 +120,25 @@ def main():
         writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
         writer.writeheader()
         writer.writerows(books_data)
-
+    
+ 
+def get_images(books_data):
+    os.chdir(os.path.join(os.getcwd(),'data'))   
+    for book in books_data:
+        image_name = book['Image_name'].replace('/', '')
+        image_url = book['Image_url']
+        print(image_name, image_url)
+        with open(image_name + '.jpg', 'wb') as f:
+            img = requests.get(image_url)
+            f.write(img.content)
 
 if __name__ == "__main__":
     main()
 
-
+    books_link = get_books_links(page_number=50)
+    books_data = get_books_data(books_link)
+    get_images(books_data)   
+   
 
 
 
