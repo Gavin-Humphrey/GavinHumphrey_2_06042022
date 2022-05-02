@@ -6,9 +6,10 @@ import os
 from slugify import slugify
 from bs4 import BeautifulSoup 
 
-
 BASE_URL = "http://books.toscrape.com"
 
+'''Une fonction pour récupérer les liens de tous les livres, 
+dont le nombre de pages des livres est passé en paramètre'''
 
 def get_books_links(page_number=50):
     """Return a list with all books urls"""
@@ -67,20 +68,15 @@ def get_books_data(books_links):
         title = parsed_result.h1.text.strip()
         price_including_tax = parsed_result.select("td")[3].text.strip()
         price_excluding_tax = parsed_result.select("td")[2].text.strip()
-        number_available = parsed_result.find(
-            "p", {"class": "instock availability"}
-        ).text.strip()
+        space_position = parsed_result.select("td")[5].text.index(" ", 10)
+        number_available = parsed_result.select("td")[5].text[10:space_position].strip()
         product_description = parsed_result.select("article > p")[0].text.strip()
         # Itérer toutes ul de class=breadcrumb pour trouver les category qui se trouve dans li class=active
         category_ul = parsed_result.select("ul.breadcrumb")
         for element in category_ul:
             category = parsed_result.select("li")[2].text.strip()
-        review_rating = (
-            parsed_result.find("p", class_="star-rating").get("class")[1] + " stars"
-        )
-        image_url = (
-            BASE_URL + "/" + parsed_result.select("img")[0].get("src").strip("../../")
-        )
+        review_rating = (parsed_result.find("p", class_="star-rating").get("class")[1] + " stars")
+        image_url = (BASE_URL + "/" + parsed_result.select("img")[0].get("src").strip("../../"))
         book_img = parsed_result.select("img")[0]
         image_name = parsed_result.select("img")[0].get("alt")
         # print(image_alt)
@@ -109,25 +105,22 @@ def main():
     """Main function"""
 
     books_links = get_books_links(page_number=50)
-
     books_data = get_books_data(books_links)
 
-    # Fonction restant à faire:
-    # Récupération et Sauvegarde des images
-
+    # Ecrire le données dans un fichier csv avec DictWriter
     header = books_data[0] .keys()
     with open(f"data/scrapefile.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
         writer.writeheader()
         writer.writerows(books_data)
     
- 
+# Récupération et Sauvegarde des images 
 def get_images(books_data):
-    os.chdir(os.path.join(os.getcwd(),'data'))   
+    os.chdir(os.path.join(os.getcwd(),'data/image'))   
     for book in books_data:
         image_name = book['Image_name'].replace('/', '')
         image_url = book['Image_url']
-        print(image_name, image_url)
+        # print(image_name, image_url)
         with open(image_name + '.jpg', 'wb') as f:
             img = requests.get(image_url)
             f.write(img.content)
@@ -135,8 +128,8 @@ def get_images(books_data):
 if __name__ == "__main__":
     main()
 
-    books_link = get_books_links(page_number=50)
-    books_data = get_books_data(books_link)
+    books_links = get_books_links(page_number=50)
+    books_data = get_books_data(books_links)
     get_images(books_data)   
    
 
