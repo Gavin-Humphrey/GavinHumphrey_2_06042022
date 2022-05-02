@@ -1,1 +1,7 @@
 /data/
+/.idea/
+/venv/
+/scrapefile.csv/
+/data/scrapefile.csv/
+/image/
+/data/image/
