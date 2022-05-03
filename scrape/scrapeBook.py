@@ -106,31 +106,54 @@ def main():
 
     books_links = get_books_links(page_number=50)
     books_data = get_books_data(books_links)
-
+     
+   
+    books_data_copy =  books_data[:] # Copie books_data dans books_data_copy pour que cela n'affecte point la variable originale
+    for dict_ in books_data_copy:
+        # Pour chaque dict livre on supprime le champ Image_name
+        del dict_["Image_name"]
+    header = books_data_copy[0] .keys() 
     # Ecrire le données dans un fichier csv avec DictWriter
-    header = books_data[0] .keys()
+    dict_data_category = get_data_category(books_data_copy)
     with open(f"data/scrapefile.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
         writer.writeheader()
         writer.writerows(books_data)
+        csvfile.close()
     
+    for category in dict_data_category:
+        with open(f"data/scrapefile_{category}.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
+            writer.writeheader()
+            writer.writerows(dict_data_category[category])
+            csvfile.close()
+ 
 # Récupération et Sauvegarde des images 
 def get_images(books_data):
+    
     os.chdir(os.path.join(os.getcwd(),'data/image'))   
     for book in books_data:
         image_name = book['Image_name'].replace('/', '')
         image_url = book['Image_url']
+            
         # print(image_name, image_url)
         with open(image_name + '.jpg', 'wb') as f:
             img = requests.get(image_url)
             f.write(img.content)
 
+def get_data_category(books_data):
+    dict_book_category = {} # Ce dictionaire va containir une liste de livre pour chaque categorie. La clé sera la categorie et la valeur sera la liste de dict
+    for book in books_data:
+        if book["Category"] in dict_book_category:# On regarde si il y a au moins un livre de cette categorie inserait deja dans la liste, si c'est le cas on ajoute le livre dans la liste de livre de cette cate
+            dict_book_category[book["Category"]].append(book)
+        else:# Il y a aucun livre de meme cate, on creer la liste et on serre la liste
+            dict_book_category[book["Category"]] = [book]
+    return dict_book_category
+       
 if __name__ == "__main__":
     main()
 
-    books_links = get_books_links(page_number=50)
-    books_data = get_books_data(books_links)
-    get_images(books_data)   
+   
    
 
 
