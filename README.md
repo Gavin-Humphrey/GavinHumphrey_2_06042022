@@ -1,4 +1,4 @@
-# Projet 2 OpenClassrooms Web-scrapping
+# Projet 2 OpenClassrooms Web-scraping
 
 ## Mise en place du projet :
 
@@ -11,4 +11,4 @@
         pip<version> install -r requirements.txt
 
 ### 3. Execution du script
-        python<version> main.py
+        python<version> scrapeBook.py

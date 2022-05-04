@@ -101,33 +101,7 @@ def get_books_data(books_links):
 
     return books_data
 
-def main():
-    """Main function"""
 
-    books_links = get_books_links(page_number=50)
-    books_data = get_books_data(books_links)
-     
-   
-    books_data_copy =  books_data[:] # Copie books_data dans books_data_copy pour que cela n'affecte la variable originale
-    for dict_ in books_data_copy:
-        # Pour chaque dict livre on supprime le champ Image_name
-        del dict_["Image_name"]
-    header = books_data_copy[0] .keys() 
-    # Ecrire le données dans un fichier csv avec DictWriter
-    dict_data_category = get_data_category(books_data_copy)
-    with open(f"data/scrapefile.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
-        writer.writeheader()
-        writer.writerows(books_data)
-        csvfile.close()
-    
-    for category in dict_data_category:
-        with open(f"data/scrapefile_{category}.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
-            writer.writeheader()
-            writer.writerows(dict_data_category[category])
-            csvfile.close()
- 
 # Récupération et Sauvegarde des images 
 def get_images(books_data):
     
@@ -141,9 +115,10 @@ def get_images(books_data):
             img = requests.get(image_url)
             f.write(img.content)
 
-"""Cette fonction fait le tri par catégorie sur les data (la liste books_data). 
-    Ici il y a une liste avec les 1000 livres"""
+
 def get_data_category(books_data):
+    """Cette fonction fait le tri par catégorie sur les data (la liste books_data). 
+    Ici il y a une liste avec les 1000 livres"""
     dict_book_category = {} # Ce dictionaire va containir une liste de livre pour chaque categorie...                                
     for book in books_data: # ...La clé sera la categorie et la valeur sera la liste de dict
         if book["Category"] in dict_book_category: # On regarde si il y a au moins un livre de cette categorie... 
@@ -151,7 +126,34 @@ def get_data_category(books_data):
         else:# Il y a aucun livre de meme cate, on creer la liste et on serre la liste
             dict_book_category[book["Category"]] = [book]
     return dict_book_category
-       
+
+
+def main():
+    """Main function"""
+    books_links = get_books_links(page_number=50)
+    books_data = get_books_data(books_links)
+    
+    # Copie books_data dans books_data_copy pour que cela n'affecte la variable originale
+    books_data_copy =  books_data[:] 
+    for dict_ in books_data_copy:
+        # Pour chaque dict livre on supprime le champ Image_name
+        del dict_["Image_name"]
+    header = books_data_copy[0] .keys() 
+    # Ecrire le données dans un fichier csv avec DictWriter
+    dict_data_category = get_data_category(books_data_copy)
+    with open(f"data/A_scrapefile.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
+        writer.writeheader()
+        writer.writerows(books_data)
+        # csvfile.close()
+
+    for category in dict_data_category:
+        with open(f"data/{category}.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
+            writer.writeheader()
+            writer.writerows(dict_data_category[category])
+        # csvfile.close()
+     
 if __name__ == "__main__":
     main()
 
