@@ -108,7 +108,7 @@ def main():
     books_data = get_books_data(books_links)
      
    
-    books_data_copy =  books_data[:] # Copie books_data dans books_data_copy pour que cela n'affecte point la variable originale
+    books_data_copy =  books_data[:] # Copie books_data dans books_data_copy pour que cela n'affecte la variable originale
     for dict_ in books_data_copy:
         # Pour chaque dict livre on supprime le champ Image_name
         del dict_["Image_name"]
@@ -141,11 +141,13 @@ def get_images(books_data):
             img = requests.get(image_url)
             f.write(img.content)
 
+"""Cette fonction fait le tri par catégorie sur les data (la liste books_data). 
+    Ici il y a une liste avec les 1000 livres"""
 def get_data_category(books_data):
-    dict_book_category = {} # Ce dictionaire va containir une liste de livre pour chaque categorie. La clé sera la categorie et la valeur sera la liste de dict
-    for book in books_data:
-        if book["Category"] in dict_book_category:# On regarde si il y a au moins un livre de cette categorie inserait deja dans la liste, si c'est le cas on ajoute le livre dans la liste de livre de cette cate
-            dict_book_category[book["Category"]].append(book)
+    dict_book_category = {} # Ce dictionaire va containir une liste de livre pour chaque categorie...                                
+    for book in books_data: # ...La clé sera la categorie et la valeur sera la liste de dict
+        if book["Category"] in dict_book_category: # On regarde si il y a au moins un livre de cette categorie... 
+            dict_book_category[book["Category"]].append(book) #...inserait deja dans la liste, si c'est le cas on ajoute le livre dans la liste de livre de cette cate
         else:# Il y a aucun livre de meme cate, on creer la liste et on serre la liste
             dict_book_category[book["Category"]] = [book]
     return dict_book_category
