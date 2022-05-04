@@ -23,11 +23,10 @@ def get_books_links(page_number=50):
     books_urls = parsing.find_all("h3")
     # print('http://books.toscrape.com' + books_urls[0].a['href'])
 
-    # La liste du toutes les livres
+    # La liste du toutes les liens des livres
     links_to_books = []
 
-    # Iterer les range de toutes les catetories 2émè item à 51émè (les 50 categories) et recupérer des livres page après page
-    # for i in range(1, 51):
+    # Iterer les range de toutes les catetories 2émè item à 51émè (les 50 pages) et recupérer des livres page après page
     for i in range(1, page_number + 1):
         print(f"....Traitement de la page {i}")
         page = f"http://books.toscrape.com/catalogue/page-{i}.html"
@@ -79,7 +78,6 @@ def get_books_data(books_links):
         image_url = (BASE_URL + "/" + parsed_result.select("img")[0].get("src").strip("../../"))
         book_img = parsed_result.select("img")[0]
         image_name = parsed_result.select("img")[0].get("alt")
-        # print(image_alt)
         # Stocker les données du chaque livre dans un dict.
         books_data_dict = {
             "Link": books_urls,
@@ -101,20 +99,18 @@ def get_books_data(books_links):
 
     return books_data
 
-
 # Récupération et Sauvegarde des images 
 def get_images(books_data):
     
     os.chdir(os.path.join(os.getcwd(),'data/image'))   
     for book in books_data:
         image_name = book['Image_name'].replace('/', '')
-        image_url = book['Image_url']
-            
-        # print(image_name, image_url)
+        image_url = book['Image_url']   
+
         with open(image_name + '.jpg', 'wb') as f:
             img = requests.get(image_url)
             f.write(img.content)
-
+            
 
 def get_data_category(books_data):
     """Cette fonction fait le tri par catégorie sur les data (la liste books_data). 
@@ -132,7 +128,7 @@ def main():
     """Main function"""
     books_links = get_books_links(page_number=50)
     books_data = get_books_data(books_links)
-    
+    books_image = get_images(books_data)
     # Copie books_data dans books_data_copy pour que cela n'affecte la variable originale
     books_data_copy =  books_data[:] 
     for dict_ in books_data_copy:
@@ -145,15 +141,13 @@ def main():
         writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
         writer.writeheader()
         writer.writerows(books_data)
-        # csvfile.close()
 
     for category in dict_data_category:
         with open(f"data/{category}.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
             writer.writeheader()
             writer.writerows(dict_data_category[category])
-        # csvfile.close()
-     
+       
 if __name__ == "__main__":
     main()
 
