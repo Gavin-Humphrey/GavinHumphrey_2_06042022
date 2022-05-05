@@ -99,18 +99,19 @@ def get_books_data(books_links):
 
     return books_data
 
+
 # Récupération et Sauvegarde des images 
 def get_images(books_data):
-    
-    os.chdir(os.path.join(os.getcwd(),'data/image'))   
+    current_directory = os.getcwd()
+    os.chdir(os.path.join(current_directory,'data/image'))   
     for book in books_data:
         image_name = book['Image_name'].replace('/', '')
         image_url = book['Image_url']   
 
         with open(image_name + '.jpg', 'wb') as f:
             img = requests.get(image_url)
-            f.write(img.content)
-            
+            f.write(img.content) 
+    os.chdir(current_directory)        
 
 def get_data_category(books_data):
     """Cette fonction fait le tri par catégorie sur les data (la liste books_data). 
@@ -128,7 +129,7 @@ def main():
     """Main function"""
     books_links = get_books_links(page_number=50)
     books_data = get_books_data(books_links)
-    books_image = get_images(books_data)
+    get_images(books_data)
     # Copie books_data dans books_data_copy pour que cela n'affecte la variable originale
     books_data_copy =  books_data[:] 
     for dict_ in books_data_copy:
@@ -141,18 +142,16 @@ def main():
         writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
         writer.writeheader()
         writer.writerows(books_data)
-
+        
     for category in dict_data_category:
         with open(f"data/{category}.csv", "w", encoding="utf-8-sig", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header, dialect="excel")
             writer.writeheader()
             writer.writerows(dict_data_category[category])
-       
+            
 if __name__ == "__main__":
     main()
 
-   
-   
 
 
 
